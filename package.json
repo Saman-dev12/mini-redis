@@ -1,0 +1,17 @@
+{
+  "name": "mini-redis",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "server": "bun run server.ts",
+    "cli": "bun run test.ts",
+    "test": "bun run test-commands.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
