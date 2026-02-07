@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  mini-redis:
+    build: .
+    container_name: mini-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production

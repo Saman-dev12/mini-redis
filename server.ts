@@ -4,7 +4,7 @@ import { StartTTLWorker } from './store/ttl';
 
 StartTTLWorker();
 
-const PORT = 8080;
+const PORT = 6379;
 let activeConnections = 0;
 
 const server = net.createServer((socket) => {

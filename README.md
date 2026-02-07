@@ -10,14 +10,52 @@ A lightweight Redis-like in-memory key-value store implementation in TypeScript.
 - **Multi Operations**: MGET, MSET
 - **TTL Support**: SET with EX, TTL, EXPIRE commands
 - **Key Management**: KEYS command
+- **List Operations**: LPUSH, RPUSH, LPOP, RPOP, LRANGE, LLEN
+- **Type Checking**: TYPE command
 - **Automatic TTL Cleanup**: Background worker for expired key cleanup
-- **TCP Server**: Network-accessible via TCP connection
+- **TCP Server**: Network-accessible via TCP connection on port 6379
+- **Docker Support**: Run like real Redis with Docker
 
 ## Installation
 
 ```bash
 bun install
 ```
+
+## Docker Usage (Recommended)
+
+### Start the server with Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+The server will run on port 6379 (Redis default port).
+
+### Use the Redis CLI
+
+**On Linux/Mac:**
+```bash
+./redis-cli.sh
+```
+
+**On Windows (PowerShell):**
+```powershell
+.\redis-cli.ps1
+```
+
+Or directly:
+```bash
+docker exec -it mini-redis bun run test.ts
+```
+
+### Stop the server
+
+```bash
+docker-compose down
+```
+
+## Local Development (Without Docker)
 
 ## Quick Start
 
@@ -43,7 +81,7 @@ bun run server
 bun run server.ts
 ```
 
-The server will start on port 8080.
+The server will start on port 6379.
 
 ### Connect with Redis CLI
 
@@ -56,20 +94,20 @@ bun run test.ts
 This provides an interactive Redis-like CLI where you can type commands directly:
 
 ```
-mini-redis-cli 8080
+mini-redis-cli
 Type "exit" or "quit" to close the connection
 
-Connected to mini-redis server at 127.0.0.1:8080
+Connected to mini-redis server at 127.0.0.1:6379
 
-127.0.0.1:8080> SET user:1 alice
+127.0.0.1:6379> SET user:1 alice
 OK
-127.0.0.1:8080> GET user:1
+127.0.0.1:6379> GET user:1
 alice
-127.0.0.1:8080> INCR counter
+127.0.0.1:6379> INCR counter
 1
-127.0.0.1:8080> INCR counter
+127.0.0.1:6379> INCR counter
 2
-127.0.0.1:8080> exit
+127.0.0.1:6379> exit
 Bye!
 ```
 

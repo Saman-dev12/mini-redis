@@ -1,7 +1,7 @@
 import * as net from 'net';
 import * as readline from 'readline';
 
-const PORT = 8080;
+const PORT = 6379;
 const HOST = '127.0.0.1';
 
 console.log(`mini-redis-cli ${PORT}`);

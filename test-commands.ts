@@ -1,6 +1,6 @@
 import * as net from 'net';
 
-const client = net.createConnection({ port: 8080 }, () => {
+const client = net.createConnection({ port: 6379 }, () => {
   console.log("Connected to Mini-Redis server\n");
   
   // Basic SET/GET
