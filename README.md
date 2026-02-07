@@ -24,6 +24,19 @@ bun install
 
 ## Docker Usage (Recommended)
 
+### Quick Start - Pull and Run
+
+```bash
+docker run -d -p 6379:6379 --name mini-redis ghcr.io/saman-dev12/mini-redis:latest
+```
+
+Then connect:
+```bash
+docker exec -it mini-redis bun run test.ts
+```
+
+### Build from Source
+
 ### Start the server with Docker Compose
 
 ```bash
@@ -34,19 +47,27 @@ The server will run on port 6379 (Redis default port).
 
 ### Use the Redis CLI
 
-**On Linux/Mac:**
-```bash
-./redis-cli.sh
-```
+Connect to the running container:
 
-**On Windows (PowerShell):**
-```powershell
-.\redis-cli.ps1
-```
-
-Or directly:
 ```bash
 docker exec -it mini-redis bun run test.ts
+```
+
+**Optional: Create an alias for easier access**
+
+**On Windows (PowerShell) - Add to your PowerShell profile:**
+```powershell
+function redis-cli { docker exec -it mini-redis bun run test.ts }
+```
+
+**On Linux/Mac - Add to ~/.bashrc or ~/.zshrc:**
+```bash
+alias redis-cli='docker exec -it mini-redis bun run test.ts'
+```
+
+After adding the alias, restart your terminal and simply type:
+```bash
+redis-cli
 ```
 
 ### Stop the server
