@@ -13,6 +13,7 @@ A lightweight Redis-like in-memory key-value store implementation in TypeScript.
 - **List Operations**: LPUSH, RPUSH, LPOP, RPOP, LRANGE, LLEN
 - **Type Checking**: TYPE command
 - **Automatic TTL Cleanup**: Background worker for expired key cleanup
+- **Data Persistence**: AOF (Append-Only File) for crash recovery and durability
 - **TCP Server**: Network-accessible via TCP connection on port 6379
 - **Docker Support**: Run like real Redis with Docker
 
@@ -27,7 +28,7 @@ bun install
 ### Quick Start - Pull and Run
 
 ```bash
-docker run -d -p 6379:6379 --name mini-redis ghcr.io/saman-dev12/mini-redis:latest
+docker run -d -p 6379:6379 -v redis-data:/app/storage --name mini-redis ghcr.io/saman-dev12/mini-redis:latest
 ```
 
 Then connect:
@@ -43,7 +44,7 @@ docker exec -it mini-redis bun run test.ts
 docker-compose up -d
 ```
 
-The server will run on port 6379 (Redis default port).
+The server will run on port 6379 (Redis default port). Data is automatically persisted to a Docker volume.
 
 ### Use the Redis CLI
 
@@ -74,6 +75,11 @@ redis-cli
 
 ```bash
 docker-compose down
+```
+
+**Note:** Data persists in the `redis-data` volume. To remove all data:
+```bash
+docker-compose down -v
 ```
 
 ## Local Development (Without Docker)
@@ -248,10 +254,51 @@ walk dog
 2
 ```
 
+## Data Persistence
+
+Mini-Redis implements **AOF (Append-Only File)** persistence, similar to Redis:
+
+### How It Works
+
+- All write commands (SET, DEL, INCR, DECR, MSET, EXPIRE, LPUSH, RPUSH, LPOP, RPOP) are logged to `storage/AOF.log`
+- On server restart, the AOF file is automatically replayed to restore your data
+- Only successful commands are persisted (errors are not logged)
+
+### Benefits
+
+- **Crash Recovery**: Data survives server restarts and crashes
+- **Durability**: Every write operation is immediately appended to disk
+- **Simple**: No manual intervention required - it just works
+
+### Data Location
+
+The persistence file is stored at: `storage/AOF.log`
+
+This directory is automatically created on first run and excluded from git.
+
+### Example
+
+```bash
+# Start server and add data
+> SET user alice
+OK
+> SET counter 100
+OK
+
+# Restart the server (Ctrl+C and bun run server again)
+
+# Data is automatically restored
+> GET user
+alice
+> GET counter
+100
+```
+
 ## Architecture
 
 - **server.ts** - TCP server implementation with connection management
-- **parser.ts** - Command parser and dispatcher
+- **parser.ts** - Command parser and dispatcher with persistence integration
+- **persistance.ts** - AOF persistence layer with write stream
 - **store/cache-store.ts** - In-memory cache implementation
 - **store/ttl.ts** - Background worker for TTL cleanup
 - **test.ts** - Interactive CLI client
@@ -267,6 +314,66 @@ All commands have proper error handling with descriptive error messages:
 ## Graceful Shutdown
 
 Press `Ctrl+C` to gracefully shut down the server, closing all active connections.
+
+## Building and Publishing Docker Image
+
+### Quick Build Script
+
+**Windows (PowerShell):**
+```powershell
+.\build-docker.ps1
+```
+
+**Linux/Mac:**
+```bash
+chmod +x build-docker.sh
+./build-docker.sh
+```
+
+**To push to registry:**
+```powershell
+# Windows
+.\build-docker.ps1 -Push -Tag latest
+
+# Linux/Mac
+./build-docker.sh --push --tag latest
+```
+
+### Build manually
+
+```bash
+docker build -t mini-redis:latest .
+```
+
+### Test the image
+
+```bash
+docker run -d -p 6379:6379 -v redis-data:/app/storage --name mini-redis-test mini-redis:latest
+docker exec -it mini-redis-test bun run test.ts
+```
+
+### Publish to GitHub Container Registry
+
+```bash
+# Login to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+
+# Tag the image
+docker tag mini-redis:latest ghcr.io/saman-dev12/mini-redis:latest
+
+# Push to registry
+docker push ghcr.io/saman-dev12/mini-redis:latest
+```
+
+### Automated Publishing
+
+The project includes a GitHub Actions workflow that automatically:
+- Builds the Docker image on every push to main/master
+- Publishes to GitHub Container Registry
+- Supports multi-platform builds (amd64, arm64)
+- Tags releases with semantic versioning
+
+Simply push to the main branch or create a tag (e.g., `v1.0.0`) to trigger the build.
 
 ---
 

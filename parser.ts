@@ -1,6 +1,7 @@
 import { cache } from "./store/cache-store";
+import { aof } from "./persistance";
 
-export const handle_command = (input:string) : string => {
+export const handle_command = (input:string, skipPersistence = false) : string => {
     const parts = input.split(" ");
     const command = parts[0]?.toUpperCase();
     
@@ -109,10 +110,6 @@ export const handle_command = (input:string) : string => {
             }
             return cache.expire(key, seconds);
         }
-        
-        case "KEYS":{
-            return Array.from(cache.keys()).join(",");
-        }
 
         case "LPUSH":{
             const key = parts[1];
@@ -196,4 +193,45 @@ export const handle_command = (input:string) : string => {
         default:
             return "ERROR: unknown command";
     }
+}
+
+// Replay commands from AOF on server startup
+export function replayAOF(): void {
+    const commands = aof.load();
+    let successCount = 0;
+    let errorCount = 0;
+    
+    console.log('Replaying AOF commands...');
+    
+    for (const cmd of commands) {
+        try {
+            const result = handle_command(cmd, true); // Skip persistence during replay
+            if (!result.startsWith('ERROR')) {
+                successCount++;
+            } else {
+                errorCount++;
+                console.warn(`Failed to replay command: ${cmd} - ${result}`);
+            }
+        } catch (error) {
+            errorCount++;
+            console.error(`Error replaying command: ${cmd}`, error);
+        }
+    }
+    
+    console.log(`AOF replay complete: ${successCount} succeeded, ${errorCount} failed`);
+}
+
+// Wrapper to handle persistence
+export function executeCommand(input: string): string {
+    const result = handle_command(input, false);
+    
+    // Only persist successful write commands
+    if (!result.startsWith('ERROR')) {
+        const command = input.split(" ")[0]?.toUpperCase();
+        if (command && aof.shouldPersist(command)) {
+            aof.append(input);
+        }
+    }
+    
+    return result;
 }

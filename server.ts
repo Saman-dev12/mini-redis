@@ -1,7 +1,11 @@
 import * as net from 'net'; 
-import { handle_command } from './parser';
+import { executeCommand, replayAOF } from './parser';
 import { StartTTLWorker } from './store/ttl';
 
+// Replay AOF to restore data
+replayAOF();
+
+// Start TTL worker for expired key cleanup
 StartTTLWorker();
 
 const PORT = 6379;
@@ -17,7 +21,7 @@ const server = net.createServer((socket) => {
             const commands = data.toString().split("\n");
             for (const cmd of commands) {
                 if (!cmd.trim()) continue;
-                const response = handle_command(cmd.trim());
+                const response = executeCommand(cmd.trim());
                 socket.write(response + "\n");
             }
         }catch(error){

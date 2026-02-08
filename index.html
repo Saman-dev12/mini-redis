@@ -378,6 +378,11 @@
                     <h3>TTL Support</h3>
                     <p>Automatic expiration with background cleanup worker</p>
                 </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Data Persistence</h3>
+                    <p>AOF (Append-Only File) persistence ensures data survives restarts and crashes</p>
+                </div>
             </div>
         </div>
     </section>
@@ -388,15 +393,15 @@
             <p class="quick-start-subtitle">Get up and running in seconds with Docker</p>
 
             <div class="command-box">
-                <button class="copy-btn" onclick="copyCommand(this, 'docker run -d -p 6379:6379 --name mini-redis ghcr.io/saman-dev12/mini-redis:latest')">Copy</button>
-                <pre>docker run -d -p 6379:6379 --name mini-redis ghcr.io/saman-dev12/mini-redis:latest</pre>
+                <button class="copy-btn" onclick="copyCommand(this, 'docker run -d -p 6379:6379 -v redis-data:/app/storage --name mini-redis ghcr.io/saman-dev12/mini-redis:latest')">Copy</button>
+                <pre>docker run -d -p 6379:6379 -v redis-data:/app/storage --name mini-redis ghcr.io/saman-dev12/mini-redis:latest</pre>
             </div>
 
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <h3>Pull & Run</h3>
-                    <p>Start the Mini-Redis server with a single Docker command. The image will be automatically pulled from GitHub Container Registry.</p>
+                    <p>Start the Mini-Redis server with a single Docker command. The image will be automatically pulled from GitHub Container Registry. Data persists in the <code>redis-data</code> volume.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>

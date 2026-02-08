@@ -11,6 +11,9 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Create storage directory for persistence
+RUN mkdir -p storage
+
 # Expose the default port
 EXPOSE 6379
 

@@ -6,7 +6,8 @@
   "scripts": {
     "server": "bun run server.ts",
     "cli": "bun run test.ts",
-    "test": "bun run test-commands.ts"
+    "test": "bun run test-commands.ts",
+    "test-persistence": "bun run test-persistence.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
